@@ -1,7 +1,8 @@
 """
-v.2
+v.3
 Author: D.Caucheteur
 SVIP Project
+Add min_date and max_date critieria
 """
 
 # coding: utf-8
@@ -35,12 +36,14 @@ def splitParagraphIntoSentences2(paragraph):
     sentenceList = sentenceEnders2.split(paragraph)
     return sentenceList
 
-def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="localhost", elasticsearch_port=9201,
-               elasticsearch_index="ct_annot_data2019_nov"):
+def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elasticsearch_host="localhost", elasticsearch_port=9201,
+               elasticsearch_index="annot_ct2021_5"):
     print(genvar)
     print(disease)
     print(gender)
     print(age)
+    print(min_date)
+    print(max_date)
     print(variant_must)
     ####################################################################
     ###################### INITIALISATION JSON ########################
@@ -73,6 +76,16 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
         age_years = "undefined"
         age_months = "undefined"
         age_days = "undefined"
+
+    # MIN DATE #
+    if min_date == "none":
+        print("min_date est none")
+        min_date = str(1900)
+
+    # MAX DATE #
+    if max_date == "none":
+        print("max_date est none")
+        max_date = str(2100)
 
     # DISEASE # (NCIth)
     if disease == "none":
@@ -137,7 +150,7 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
 
     # Query construction
 
-    def buildQuery(gene_norm, id_disease, variant, age_years, age_months, age_days, gender_norm, variant_must):
+    def buildQuery(gene_norm, id_disease, variant, age_years, age_months, age_days, min_date, max_date, gender_norm, variant_must):
         query = '{"query": '
         # Conditional bloc if variant in topic #
         if variant_must == "yes":
@@ -186,6 +199,26 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
             query += '                {"range": {"maximum_age_months":{"gte": ' + age_months + '}}},'
             query += '                {"range": {"maximum_age_days":{"gte": ' + age_days + '}}},'
             query += '                {"match": {"maximum_age":{"query": "N/A"}}}'
+            query += '              ]'
+            query += '           }'
+            query += '           }'
+
+        # condition: min_date
+        if min_date != "none":
+            query += ','
+            query += '          {"bool":{'
+            query += '              "must": ['
+            query += '                {"range": {"start_date_year":{"gte": ' + min_date + '}}}'
+            query += '              ]'
+            query += '           }'
+            query += '           }'
+
+        # condition: max_date
+        if max_date != "none":
+            query += ','
+            query += '          {"bool":{'
+            query += '              "must": ['
+            query += '                {"range": {"start_date_year":{"lte": ' + max_date + '}}}'
             query += '              ]'
             query += '           }'
             query += '           }'
@@ -276,6 +309,26 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
                 query += '                {"range": {"maximum_age_months":{"gte": ' + age_months + '}}},'
                 query += '                {"range": {"maximum_age_days":{"gte": ' + age_days + '}}},'
                 query += '                {"match": {"maximum_age":{"query": "N/A"}}}'
+                query += '              ]'
+                query += '           }'
+                query += '           }'
+
+            # condition: min_date
+            if min_date != "none":
+                query += ','
+                query += '          {"bool":{'
+                query += '              "must": ['
+                query += '                {"range": {"start_date_year":{"gte": ' + min_date + '}}}'
+                query += '              ]'
+                query += '           }'
+                query += '           }'
+
+            # condition: max_date
+            if max_date != "none":
+                query += ','
+                query += '          {"bool":{'
+                query += '              "must": ['
+                query += '                {"range": {"start_date_year":{"lte": ' + max_date + '}}}'
                 query += '              ]'
                 query += '           }'
                 query += '           }'
@@ -377,7 +430,7 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
             decoupe = duo.split(";")
         gene_norm = decoupe[0]
         variant = decoupe[1]
-        query = (buildQuery(gene_norm, id_disease, variant, age_years, age_months, age_days, gender_norm, variant_must))
+        query = (buildQuery(gene_norm, id_disease, variant, age_years, age_months, age_days, min_date, max_date, gender_norm, variant_must))
 
         query_exec = es.search(index=elasticsearch_index, body=query, size=1000)
 
@@ -496,7 +549,9 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
                     'NCTid': NCTid,
                     'score': score,
                     'start_date': v['start_date'],
+                    'start_date_year': v['start_date_year'],
                     'completion_date': v['completion_date'],
+                    'completion_date_year': v['completion_date_year'],
                     'gender': v['gender'],
                     'minimum_age': v['minimum_age'],
                     'maximum_age': v['maximum_age'],
@@ -541,6 +596,7 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
                 ct_id = ct[0]
                 ct_score = ct[1]
                 nb_ct = len(dico_res_sorted)
+                print(nb_ct)
                 parcours += 1
                 split_info = dico_info[ct_id].split(str(ct_id) + "\",")[1]
                 split_info = split_info.split("\"start_date\":")[1]
@@ -583,6 +639,5 @@ def rankCT(genvar, disease, gender, age, variant_must, elasticsearch_host="local
 
     return (output)
 
-
-#print(rankCT("nx_p15056(V600E):NX_P15056(V600K)", "C2926", "female", "20", "yes"))
+print(rankCT("NX_P15056(V600K)", "none", "none", "none", "2011", "none", "yes"))
 #(rankCT("NX_P15056(V600K)", "none", "none", "none", "yes"))

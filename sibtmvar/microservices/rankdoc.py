@@ -398,7 +398,7 @@ class RankDoc:
         try:
             if gender == "all":
                 gender = "none"
-            ct_str = ct.rankCT(gen_var, disease, gender, age, "yes", elasticsearch_host, elasticsearch_port, elasticsearch_index)
+            ct_str = ct.rankCT(gen_var, disease, gender, age, str(self.conf_file.settings['settings_user']['min_date']), str(self.conf_file.settings['settings_user']['max_date']), "yes", elasticsearch_host, elasticsearch_port, elasticsearch_index)
             ct_json = json.loads(ct_str)
         except:
             ct_json = {}

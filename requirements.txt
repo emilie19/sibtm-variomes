@@ -1,5 +1,5 @@
 # Needed packages/versions
-elasticsearch
+elasticsearch<7.14.0
 numpy
 pandas
 pymongo
