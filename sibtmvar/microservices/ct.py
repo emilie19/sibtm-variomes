@@ -639,5 +639,5 @@ def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elast
 
     return (output)
 
-print(rankCT("NX_P15056(V600K)", "none", "none", "none", "2011", "none", "yes"))
+#print(rankCT("NX_P15056(V600K)", "none", "none", "none", "2011", "none", "yes"))
 #(rankCT("NX_P15056(V600K)", "none", "none", "none", "yes"))
