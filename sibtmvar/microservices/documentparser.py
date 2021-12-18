@@ -120,7 +120,8 @@ class DocumentParser:
 
         # For each section
         for section in snippets_json:
-            self.snippets[section] = []
+            if section not in self.snippets:
+                self.snippets[section] = []
             # For each sentence of the section
             for sentence in snippets_json[section]:
                 # Remove ES tagging
@@ -212,8 +213,22 @@ class DocumentParser:
                         self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = doc_json['_source'][field].split("|")
                     else:
                         self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = []
+                elif field == "language":
+                    if self.collection == "pmc":
+                        language = doc_json['_source'][field].lower()
+                        if language == "":
+                            language = "unknown"
+                        self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = language
                 else:
                     self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = doc_json['_source'][field]
+            else:
+                if field == "language" and self.collection == "medline":
+                    language = "en"
+                    if re.match(r"^\[.*\].$", doc_json['_source']["title"]):
+                        language = "other"
+                    self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = language
+                if field == "language" and self.collection == "pmc":
+                    self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = "unknown"
 
     def processDocument(self):
         ''' Highlight, generates statistics, handle snippets, etc'''
@@ -267,16 +282,28 @@ class DocumentParser:
         # Stats error handling
         self.errors += self.stats.errors
 
+        # Convert file name
+        convertEvidence = {'xls': 'table', 'csv': 'table', 'jpg': 'image', 'png': 'image'}
+
         # Process snipets
-        self.cleaned_snippets = {}
+        self.cleaned_snippets = []
         for section, snippets in self.snippets.items():
-            self.cleaned_snippets = []
+            matchObj = re.match(r'(.*)\.(.*?)[xX]?$', section)
+            file = None
+            if matchObj:
+                section = matchObj.group(2)
+                if section.lower() in convertEvidence:
+                    section = convertEvidence[section.lower()]
+                file = matchObj.group(0)
             sentences = list(dict.fromkeys(snippets))
             for sentence in sentences:
                 json_snipet = {}
-                json_snipet['section'] = section
+                json_snipet['section'] = section.lower()
                 highlighter = hl.Highlight(sentence, self.hl_entities+ie_entities)
                 json_snipet['text'] = highlighter.highlighted_text
+                if file is not None:
+                    json_snipet['file'] = file
+                    json_snipet['url'] = "https://www.ncbi.nlm.nih.gov/pmc/articles/"+self.pmcid+"/bin/"+file
                 self.cleaned_snippets.append(json_snipet)
 
          # Update statistics

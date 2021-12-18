@@ -188,7 +188,13 @@ def rankVar(request, conf_mode="prod", conf_file=None):
 
                     # Get the rankdoc
                     ranker = row[collection+"_ranker"]
-                    topic_json['publications'][collection] = ranker.getJson()
+                    if collection == "supp":
+                        compareDocs = None
+                        if 'pmc_ranker' in row:
+                            compareDocs = [pmc['document'].doc_id for _, pmc in row['pmc_ranker'].documents_df.iterrows()]
+                        topic_json['publications'][collection] = ranker.getJson(compareDocs)
+                    else:
+                        topic_json['publications'][collection] = ranker.getJson()
                     errors += ranker.errors
 
             # Add the topic to the json

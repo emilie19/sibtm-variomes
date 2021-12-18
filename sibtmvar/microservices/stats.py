@@ -189,6 +189,7 @@ class DocStats():
                             # Store in the json
                             facets_json[facet+"_groups"].append({"id": concept_id, "preferred_term": preferred_term})
 
+
         # Return facets
         return facets_json
 

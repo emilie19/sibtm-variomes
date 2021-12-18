@@ -4,6 +4,8 @@ import json
 import sys
 import math
 from datetime import datetime
+import re
+import copy
 
 from sibtmvar.microservices import configuration as conf
 from sibtmvar.microservices import cache
@@ -80,6 +82,8 @@ class RankDoc:
             for subquery in self.query.gen_vars_norm:
                 gene, variant = subquery
                 documents = self.searchLit(self.query.disease_norm, gene, variant)
+                if self.collection == "supp":
+                    documents = self.mergesupp(documents)
                 documents_per_query.append(documents)
 
 
@@ -199,6 +203,56 @@ class RankDoc:
             self.errors += es_search.errors
 
         return documents
+
+    def mergesupp(self, documents):
+
+        documents_by_id = {}
+
+        for (key, value) in documents.items():
+            document = copy.deepcopy(value)
+
+            # Get the pmid/pmcid
+            pmcid = value.requested_fields['pmcid']
+            pmid = None
+            if 'pmid' in value.requested_fields:
+               pmid = value.requested_fields['pmid']
+            if pmid is not None:
+                doc_id = pmid
+            else:
+                doc_id = pmcid
+
+            # Get previous version of the document
+            if doc_id in documents_by_id:
+                document = documents_by_id[doc_id]
+
+                # Update the score
+                for (key_score, value_score) in value.elastic_scores.items():
+                    document.elastic_scores[key_score] += value.elastic_scores[key_score]
+
+
+            # Update the id
+            else:
+                document.doc_id = doc_id
+                document.pmcid = pmcid
+                if hasattr(value, 'pmid'):
+                    document.doc_id = pmid
+
+                # Remove initial snippets
+                document.snippets = {}
+
+            # Add the hits
+            matchObj = re.match(r'(PMC.*?)_(.*\..*?)$', key, re.M | re.I)
+            if matchObj:
+                type = matchObj.group(2)
+
+                if hasattr(value, 'snippets'):
+                    new_snippets = {}
+                    new_snippets[type] = value.snippets['text']
+                    document.addSnippets(new_snippets)
+
+            documents_by_id[doc_id] = document
+
+        return documents_by_id
 
     def merge(self, documents_per_query):
         ''' Merge documents for each gene-variant couple and for each collection '''
@@ -432,7 +486,7 @@ class RankDoc:
         # pd.set_option("display.max_rows", None, "display.max_columns", None)
         # print(self.init_documents_df)
 
-    def getJson(self):
+    def getJson(self, compareDocs=None):
         ''' Return ranking as a json'''
 
         # Initialize the json
@@ -464,7 +518,13 @@ class RankDoc:
 
             # Get the document as Json with highlights
             document.generateJson()
-            documents_json.append(document.getJson())
+            document_json = document.getJson()
+            if compareDocs is not None:
+                if document_json['id'] not in compareDocs:
+                    document_json['collection_only'] = True
+                else:
+                    document_json['collection_only'] = False
+            documents_json.append(document_json)
 
             self.errors += document.errors
 
