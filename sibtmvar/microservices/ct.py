@@ -38,13 +38,13 @@ def splitParagraphIntoSentences2(paragraph):
 
 def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elasticsearch_host="localhost", elasticsearch_port=9201,
                elasticsearch_index="annot_ct2021_5"):
-    print(genvar)
-    print(disease)
-    print(gender)
-    print(age)
-    print(min_date)
-    print(max_date)
-    print(variant_must)
+    #print(genvar)
+    #print(disease)
+    #print(gender)
+    #print(age)
+    #print(min_date)
+    #print(max_date)
+    #print(variant_must)
     ####################################################################
     ###################### INITIALISATION JSON ########################
     ####################################################################
@@ -79,12 +79,12 @@ def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elast
 
     # MIN DATE #
     if min_date == "none":
-        print("min_date est none")
+        #print("min_date est none")
         min_date = str(1900)
 
     # MAX DATE #
     if max_date == "none":
-        print("max_date est none")
+       # print("max_date est none")
         max_date = str(2100)
 
     # DISEASE # (NCIth)
@@ -596,7 +596,7 @@ def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elast
                 ct_id = ct[0]
                 ct_score = ct[1]
                 nb_ct = len(dico_res_sorted)
-                print(nb_ct)
+                #print(nb_ct)
                 parcours += 1
                 split_info = dico_info[ct_id].split(str(ct_id) + "\",")[1]
                 split_info = split_info.split("\"start_date\":")[1]
