@@ -67,12 +67,8 @@ class ESQueryBuilder:
         # Add date part
         date_clause = {'lte': self.conf_file.settings['settings_user']['max_date'], 'gte': self.conf_file.settings['settings_user']['min_date']}
         year = "pubyear"
-        if self.collection == "supp":
-            year = "pubdate"
-        # TODO: correct here
-        if self.collection != "supp":
-            date_query = {"range": {year: date_clause}}
-            query_parts.append(date_query)
+        date_query = {"range": {year: date_clause}}
+        query_parts.append(date_query)
 
         # Add to the full query
         #full_query["size"] = self.conf_file.settings['settings_user']['es_results_nb']
