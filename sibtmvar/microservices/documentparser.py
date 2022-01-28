@@ -367,6 +367,11 @@ class DocumentParser:
         self.final_doc['score'] = self.final_score
         self.final_doc['rank'] = self.rank
 
+        # Correct date
+        for field in self.requested_fields:
+            if field == "date":
+                self.requested_fields[field] = int(self.requested_fields[field])
+
         # Requested json fields
         self.final_doc.update(self.requested_fields)
 
