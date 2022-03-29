@@ -95,7 +95,7 @@ class ESQueryBuilder:
                 full_query["highlight"] = self.buildHighlight(variant_query)
 
         # Return the json
-       # print(json.dumps(full_query))
+        print(json.dumps(full_query))
         return json.dumps(full_query)
 
     def buildHighlight(self, variant_query):

@@ -1,6 +1,5 @@
 import flask
 from flask import Response, request
-import json
 
 from sibtmvar.apis import apifetch as af
 from sibtmvar.apis import apiranklit as arl

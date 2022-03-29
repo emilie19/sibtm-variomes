@@ -247,7 +247,7 @@ class RankDoc:
 
                 if hasattr(value, 'snippets'):
                     new_snippets = {}
-                    new_snippets[type] = value.snippets['text']
+                    new_snippets[type+"///ARK///"+value.ark] = value.snippets['text']
                     document.addSnippets(new_snippets)
 
             documents_by_id[doc_id] = document

@@ -199,6 +199,9 @@ class DocumentParser:
         # Set source
         self.requested_fields['source'] = self.conf_file.settings['settings_system']['es_index_' + self.collection]
 
+        # Set ARK if ARK
+        if 'ARK' in doc_json['_source']:
+            self.ark = doc_json['_source']['ARK']
         # Store requested fields
         self.ret_fields.sort()
         for field in self.ret_fields:
@@ -288,13 +291,14 @@ class DocumentParser:
         # Process snipets
         self.cleaned_snippets = []
         for section, snippets in self.snippets.items():
-            matchObj = re.match(r'(.*)\.(.*?)[xX]?$', section)
+            matchObj = re.match(r'((.*)\.(.*?)[xX]?)///ARK///(.*?)$', section)
             file = None
             if matchObj:
-                section = matchObj.group(2)
+                section = matchObj.group(3)
                 if section.lower() in convertEvidence:
                     section = convertEvidence[section.lower()]
-                file = matchObj.group(0)
+                file = matchObj.group(1)
+                ark = matchObj.group(4)
             sentences = list(dict.fromkeys(snippets))
             for sentence in sentences:
                 json_snipet = {}
@@ -303,6 +307,7 @@ class DocumentParser:
                 json_snipet['text'] = highlighter.highlighted_text
                 if file is not None:
                     json_snipet['file'] = file
+                    json_snipet['ARK'] = ark
                     json_snipet['url'] = "https://www.ncbi.nlm.nih.gov/pmc/articles/"+self.pmcid+"/bin/"+file
                 self.cleaned_snippets.append(json_snipet)
 
