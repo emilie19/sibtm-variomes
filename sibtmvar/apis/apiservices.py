@@ -283,7 +283,7 @@ def logOutput(output_size, query_time, output_time, service, conf_file, ip_addre
     file = open(log_repository + "API_" + service + ".txt", "a+")
 
     # Write all infos (time, url, ip, etc) in the log file
-    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + output_size + "\n");
+    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + str(output_size) + "\n");
 
     # Close the log file
     file.close()
