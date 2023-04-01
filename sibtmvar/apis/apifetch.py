@@ -4,6 +4,7 @@ from sibtmvar.microservices import documentparser as dp
 from sibtmvar.microservices import cache
 from sibtmvar.microservices import query as qu
 from datetime import datetime
+import json
 
 def fetchDoc(request, conf_file=None, conf_mode="prod"):
     ''' Retrieves a set of documents, highlighted with a set of disease, gene, variants'''

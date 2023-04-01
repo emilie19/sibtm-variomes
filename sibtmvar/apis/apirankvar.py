@@ -4,6 +4,7 @@ import copy
 from datetime import datetime
 import json
 import sys
+import json
 
 from sibtmvar.apis import apiservices as api
 from sibtmvar.microservices import configuration as conf

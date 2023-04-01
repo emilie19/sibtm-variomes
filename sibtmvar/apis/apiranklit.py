@@ -3,6 +3,7 @@ from sibtmvar.microservices import configuration as conf, rankdoc as rd
 from sibtmvar.microservices import cache
 from sibtmvar.microservices import query as qu
 from datetime import datetime
+import json
 
 def rankLit(request, conf_mode="prod", conf_file=None):
     ''' Retrieves a ranked set of documents, highlighted with a set of the query entites'''
