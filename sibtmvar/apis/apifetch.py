@@ -101,7 +101,7 @@ def fetchDoc(request, conf_file=None, conf_mode="prod"):
     # Log the output
     output_time =  datetime.now()
     if not ('log' in request.args and request.args['log'] == "false"):
-        api.logOutput(output, query_time, output_time, "rankfetchdoc_output", conf_file, ip_address)    
+        api.logOutput(output, query_time, output_time, "fetchdoc_output", conf_file, ip_address)    
 
 
     # Display the output for the user
