@@ -251,3 +251,39 @@ def logQuery(user_query, service, conf_file, ip_address=None):
 
 
 
+def logOutput(output_size, query_time, output_time, service, conf_file, ip_address=None):
+    ''' Stores a query in the log files '''
+
+
+    # Get the ip_adress of the query
+    if ip_address is None:
+        if user_query.headers.getlist("X-Forwarded-For"):
+            ip_address = user_query.headers.getlist("X-Forwarded-For")[0]
+        else:
+            ip_address = user_query.remote_addr
+
+    # Get information (country and city) about the IP address
+    try:
+        response = requests.get("http://ip-api.com/json/" + ip_address)
+        ip_infos = json.loads(response.text)
+        if ip_infos['status'] == "success":
+            country = ip_infos['country']
+            city = ip_infos['city']
+        else:
+            country = "unknown"
+            city = "unknown"
+    except:
+        country = "unknown"
+        city = "unknown"
+
+    # Get the log repository
+    log_repository = conf_file.settings['repository']['logs']
+
+    # Open in the file corresponding to the service
+    file = open(log_repository + "API_" + service + ".txt", "a+")
+
+    # Write all infos (time, url, ip, etc) in the log file
+    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + output_size + "\n");
+
+    # Close the log file
+    file.close()

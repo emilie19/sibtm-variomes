@@ -3,6 +3,7 @@ from sibtmvar.microservices import configuration as conf
 from sibtmvar.microservices import documentparser as dp
 from sibtmvar.microservices import cache
 from sibtmvar.microservices import query as qu
+from datetime import datetime
 
 def fetchDoc(request, conf_file=None, conf_mode="prod"):
     ''' Retrieves a set of documents, highlighted with a set of disease, gene, variants'''
@@ -18,6 +19,8 @@ def fetchDoc(request, conf_file=None, conf_mode="prod"):
         errors += conf_file.errors
 
     # Log the query
+    query_time =  datetime.now()
+    
     ip_address = api.processIpParameters(request)
     if not ('log' in request.args and request.args['log'] == "false"):
         api.logQuery(request, "fetchdoc", conf_file, ip_address)
@@ -94,6 +97,12 @@ def fetchDoc(request, conf_file=None, conf_mode="prod"):
         for error in errors:
             if error not in output['errors']:
                 output['errors'].append(error)
+
+    # Log the output
+    output_time =  datetime.now()
+    if not ('log' in request.args and request.args['log'] == "false"):
+        api.logOutput(len(output), query_time, output_time, "ranklitout", conf_file, ip_address)    
+
 
     # Display the output for the user
     return (api.buildOutput(output, conf_file, errors, api_cache))
