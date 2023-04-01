@@ -251,7 +251,7 @@ def logQuery(user_query, service, conf_file, ip_address=None):
 
 
 
-def logOutput(output_size, query_time, output_time, service, conf_file, ip_address=None):
+def logOutput(output, query_time, output_time, service, conf_file, ip_address=None):
     ''' Stores a query in the log files '''
 
 
@@ -283,7 +283,9 @@ def logOutput(output_size, query_time, output_time, service, conf_file, ip_addre
     file = open(log_repository + "API_" + service + ".txt", "a+")
 
     # Write all infos (time, url, ip, etc) in the log file
-    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + str(output_size) + "\n");
+    chars_length = len(json.dump(output))
+    bytes_length = output.toString().getBytes("utf-8");
+    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + str(chars_length)+ "\t" + str(bytes_length) + "\n");
 
     # Close the log file
     file.close()

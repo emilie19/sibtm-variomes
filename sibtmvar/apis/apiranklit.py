@@ -3,7 +3,6 @@ from sibtmvar.microservices import configuration as conf, rankdoc as rd
 from sibtmvar.microservices import cache
 from sibtmvar.microservices import query as qu
 from datetime import datetime
-import json
 
 def rankLit(request, conf_mode="prod", conf_file=None):
     ''' Retrieves a ranked set of documents, highlighted with a set of the query entites'''
@@ -96,7 +95,7 @@ def rankLit(request, conf_mode="prod", conf_file=None):
     # Log the output
     output_time =  datetime.now()
     if not ('log' in request.args and request.args['log'] == "false"):
-        api.logOutput(len(json.dumps(output, ensure_ascii=False)), query_time, output_time, "ranklitout", conf_file, ip_address)    
+        api.logOutput(output, query_time, output_time, "ranklitout", conf_file, ip_address)    
 
 
     # Display the output for the user
