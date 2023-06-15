@@ -159,7 +159,7 @@ class DocumentParser:
             mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
 
             # Query biomed to get document
-            mongo_collection = self.conf_file.settings['settings_system']['mongodb_collection_bib_' + self.collection]
+            mongo_collection = self.conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
             doc_json = mongo.query(mongo_collection, {"_id": self.doc_id})
 
             # If document is not retrieved, return a warning error
@@ -169,12 +169,13 @@ class DocumentParser:
 
             # Update authors for pmc
             if doc_json is not None:
+                document = doc_json['document']
                 authors_update = []
                 if self.collection == "pmc":
-                    for author in doc_json['authors']:
+                    for author in document['authors']:
                         author_name = author['name']
                         authors_update.append(author_name)
-                    doc_json['authors'] = authors_update
+                    document['authors'] = authors_update
 
             # Close MongoDb
             mongo.closeClient()

@@ -202,7 +202,9 @@ class ESQueryBuilder:
     def buildAnnotationMatch(self, entity_type, concept_id):
         ''' Return an annotation json element '''
 
-        match_annotation = {"match": {"annotations_str": concept_id}}
+        terminology = self.conf_file.settings['terminology'][entity_type+"_solr"]
+
+        match_annotation = {"match": {"annotations_str": terminology+"_"+concept_id}}
 
         # Return the json object
         return match_annotation

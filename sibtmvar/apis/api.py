@@ -12,7 +12,7 @@ app.config["DEBUG"] = True
 
 
 # Select the prod or dev configuration files
-conf_mode = "dev2"
+conf_mode = "dev3"
 
 # Load the configuration file
 conf_file = conf.Configuration(conf_mode)

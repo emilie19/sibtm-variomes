@@ -95,7 +95,7 @@ def rankLit(request, conf_mode="prod", conf_file=None):
     # Log the output
     output_time =  datetime.now()
     if not ('log' in request.args and request.args['log'] == "false"):
-        api.logOutput(output, query_time, output_time, "ranklit_output", conf_file, ip_address)    
+        api.logOutput(output, request, query_time, output_time, "ranklit_output", conf_file, ip_address)    
 
 
     # Display the output for the user

@@ -83,7 +83,9 @@ class DocStats():
 
         # Query biomed to get document
         mongo_collection = conf_file.settings['settings_system']['mongodb_collection_metadata_' + self.collection]
-        mongo_json = mongo.query(mongo_collection, {"_id": self.doc_id})
+        mongo_json = None
+        if mongo_collection != "none":
+            mongo_json = mongo.query(mongo_collection, {"_id": self.doc_id})
 
         # Close MongoDb
         mongo.closeClient()
@@ -118,13 +120,9 @@ class DocStats():
         mongo = mg.Mongo(conf_file.settings['url']['mongodb'])
         mongo.connectDb(conf_file.settings['settings_system']['client_mongodb_'+self.collection])
 
-        # Query ana to get annotations
-        mongo_ana_collection = conf_file.settings['settings_system']['mongodb_collection_ana_' + self.collection]
-        ana_json = mongo.query(mongo_ana_collection, {"_id": self.doc_id})
-
-        # Query bib to get mesh terms
-        mongo_bib_collection = conf_file.settings['settings_system']['mongodb_collection_bib_' + self.collection]
-        bib_json = mongo.query(mongo_bib_collection, {"_id": self.doc_id})
+        # Query mongodob
+        mongo_collection = conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
+        doc_json = mongo.query(mongo_collection, {"_id": self.doc_id})
 
         # Close MongoDb
         mongo.closeClient()
@@ -133,10 +131,10 @@ class DocStats():
         self.errors += mongo.errors
 
         # If there is at least one annotation
-        if ana_json is not None:
+        if doc_json is not None:
 
             # Transform json to dataframe
-            df = pd.DataFrame(list(ana_json['annotations']),columns = ['concept_source', 'type', 'concept_id', 'preferred_term'])
+            df = pd.DataFrame(list(doc_json['annotations']),columns = ['concept_source', 'type', 'concept_id', 'preferred_term'])
             df['concept_source'] = df['concept_source'].str.lower()
 
             # Add a count column to the dataframe
@@ -166,11 +164,11 @@ class DocStats():
                     facets_json[facet+"s"].append({"id": index[2], "preferred_term": index[3],"count": count})
 
         # Add age and gender facets
-        if bib_json is not None:
+        if doc_json is not None:
 
             # Get mesh terms
-            if self.collection == "medline" and 'mesh_terms' in bib_json:
-                meshs = bib_json['mesh_terms']
+            if self.collection == "medline" and 'mesh_terms' in doc_json['document']:
+                meshs = doc_json['document']['mesh_terms']
 
                 # For each demographic facet
                 for facet in ['age', 'gender']:
