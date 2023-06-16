@@ -56,15 +56,16 @@ class DocumentsCleaning:
                     document.setHighlightedEntities(query.getHlEntities())
                     document.processDocument()
 
-                valid = False
-                for snippet in document.cleaned_snippets:
-                    if 'class="variant"' in snippet['text']:
-                        valid = True
+                if len(document.cleaned_snippets) > 0:
+                    valid = False
+                    for snippet in document.cleaned_snippets:
+                        if 'class="variant"' in snippet['text']:
+                            valid = True
 
-                # Remove document if not valid
-                if valid is False:
-                    documents_to_remove.append(index)
-                    self.documents_df.drop(index)
+                    # Remove document if not valid
+                    if valid is False:
+                        documents_to_remove.append(index)
+                        self.documents_df.drop(index)
 
         #print(documents_to_remove)
 

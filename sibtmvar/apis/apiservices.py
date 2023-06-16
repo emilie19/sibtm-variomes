@@ -286,7 +286,7 @@ def logOutput(output, user_query, query_time, output_time, service, conf_file, i
     json_string = json.dumps(output)
     chars_length = len(json_string)
     bytes_length = len(json_string.encode('utf-8'))
-    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + str(chars_length)+ "\t" + str(bytes_length) + "\t" + request.url+ "\n");
+    file.write(str(query_time) + "\t" + str(output_time) + "\t" + str(output_time-query_time) + "\t" + ip_address + "\t" + city + "\t" + country + "\t" + str(chars_length)+ "\t" + str(bytes_length) + "\t" + user_query.url+ "\n");
 
     # Close the log file
     file.close()

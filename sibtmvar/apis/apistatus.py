@@ -24,9 +24,10 @@ def getStatus(request, conf_mode="prod", conf_file=None):
     # Get the unique id
     unique_id = api.processIdParameters(request)
 
-
+    print(unique_id)
     # Create the cache variables
     api_cache_id = cache.Cache("rankvar", unique_id, "json", conf_file=conf_file)
+    print(conf_file.settings['repository']['status'] + unique_id + ".txt")
 
     # If the result is available in cache and the user accepts to use cache (cache by id)
     if api_cache_id.isInCache(time_limit=False):
@@ -34,7 +35,6 @@ def getStatus(request, conf_mode="prod", conf_file=None):
 
     # If not yet finished processing (get the last line)
     elif os.path.isfile(conf_file.settings['repository']['status'] + unique_id + ".txt"):
-
         with open(conf_file.settings['repository']['status'] + unique_id + ".txt") as f:
             for line in f:
                 pass

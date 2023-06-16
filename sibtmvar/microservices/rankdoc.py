@@ -245,9 +245,9 @@ class RankDoc:
             if matchObj:
                 type = matchObj.group(2)
 
-                if hasattr(value, 'snippets'):
+                if hasattr(value, 'snippets') and value.snippets != {}:
                     new_snippets = {}
-                    new_snippets[type+"///ARK///"+value.ark] = value.snippets['text']
+                    new_snippets[type+"///ARK///"+value.doc_id] = value.snippets['text']
                     document.addSnippets(new_snippets)
 
             documents_by_id[doc_id] = document
@@ -264,7 +264,7 @@ class RankDoc:
         self.documents_df = merging.documents_df
         self.errors += merging.errors
         #pd.set_option("display.max_rows", None, "display.max_columns", None)
-        #print(self.init_documents_df)
+        #print(len(self.documents_df))
 
     def fill(self):
         # If there is at least a document, fill the documents information
