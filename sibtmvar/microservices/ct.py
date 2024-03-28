@@ -37,7 +37,7 @@ def splitParagraphIntoSentences2(paragraph):
     return sentenceList
 
 def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elasticsearch_host="localhost", elasticsearch_port=9201,
-               elasticsearch_index="annot_ct2021_5"):
+               elasticsearch_index="annot_ct2021_5", elastisearch_username=None, elastisearch_password=None):
     #print(genvar)
     #print(disease)
     #print(gender)
@@ -140,10 +140,17 @@ def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elast
         var_ok = [m]
         couple = id_gene + ";" + m
         list_duo_norm.append(couple)
-
+    
     # >>> CONNEXION A ELASTICSEARCH
     #es = Elasticsearch([{'host': 'localhost', 'port': 9201}])
-    es = Elasticsearch([{'host': elasticsearch_host, 'port': elasticsearch_port}])
+    #es = Elasticsearch([{'host': elasticsearch_host, 'port': elasticsearch_port}])
+    try:
+        es = Elasticsearch([elasticsearch_host],
+                                       http_auth=(elastisearch_username,
+                                                 elastisearch_password),
+                                       port=elasticsearch_port, timeout=500)
+    except Exception as e:
+        print(e)
 
     # Parameters
     boost_variant_query = 100
@@ -431,8 +438,11 @@ def rankCT(genvar, disease, gender, age, min_date, max_date, variant_must, elast
         gene_norm = decoupe[0]
         variant = decoupe[1]
         query = (buildQuery(gene_norm, id_disease, variant, age_years, age_months, age_days, min_date, max_date, gender_norm, variant_must))
+        try: 
+            query_exec = es.search(index=elasticsearch_index, body=query, size=1000)
+        except Exception as e:
+            print(e)
 
-        query_exec = es.search(index=elasticsearch_index, body=query, size=1000)
 
         # JSON structures construction #
         mylistct["score"] = ('test')

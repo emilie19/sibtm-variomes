@@ -78,8 +78,14 @@ class DocStats():
         metadata_json['clinical_trials'] = []
 
         # Connect to Mongodb
-        mongo = mg.Mongo(conf_file.settings['url']['mongodb'])
-        mongo.connectDb(conf_file.settings['settings_system']['client_mongodb_'+self.collection])
+        # Connect to Mongodb
+        if self.collection == "ct":
+            mongo = mg.Mongo(self.conf_file.settings['url']['mongodb_ct'])
+            mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
+
+        else:
+            mongo = mg.Mongo(conf_file.settings['url']['mongodb'])
+            mongo.connectDb(conf_file.settings['settings_system']['client_mongodb_'+self.collection])
 
         # Query biomed to get document
         mongo_collection = conf_file.settings['settings_system']['mongodb_collection_metadata_' + self.collection]
@@ -121,7 +127,10 @@ class DocStats():
         mongo.connectDb(conf_file.settings['settings_system']['client_mongodb_'+self.collection])
 
         # Query mongodob
-        mongo_collection = conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
+        if self.collection != "ct":
+            mongo_collection = conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
+        else:
+            mongo_collection = conf_file.settings['settings_system']['mongodb_collection_annotations_' + self.collection]
         doc_json = mongo.query(mongo_collection, {"_id": self.doc_id})
 
         # Close MongoDb

@@ -149,14 +149,19 @@ class DocumentParser:
         ''' Retrieve document's information in MongoDB '''
 
         # Set source
-        self.requested_fields['source'] = self.conf_file.settings['settings_system']['client_mongodb_' + self.collection] + "/" + self.conf_file.settings['settings_system']['mongodb_collection_bib_' + self.collection]
+        self.requested_fields['source'] = self.conf_file.settings['settings_system']['client_mongodb_' + self.collection] + "/" + self.conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
 
         # Check that the collection is valid
         if self.collection in self.conf_file.settings['settings_system']['collections']:
 
             # Connect to Mongodb
-            mongo = mg.Mongo(self.conf_file.settings['url']['mongodb'])
-            mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
+            if self.collection == "ct":
+                mongo = mg.Mongo(self.conf_file.settings['url']['mongodb_ct'])
+                mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
+
+            else:
+                mongo = mg.Mongo(self.conf_file.settings['url']['mongodb'])
+                mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
 
             # Query biomed to get document
             mongo_collection = self.conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
@@ -169,7 +174,9 @@ class DocumentParser:
 
             # Update authors for pmc
             if doc_json is not None:
-                document = doc_json['document']
+                document = doc_json
+                if self.collection != "ct":
+                    document = doc_json['document']
                 authors_update = []
                 if self.collection == "pmc":
                     for author in document['authors']:
@@ -189,9 +196,7 @@ class DocumentParser:
                 # Store requested json fields
                 self.ret_fields.sort()
                 for field in self.ret_fields:
-                    if field == "comments_in" or field == "comments_on":
-                        self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = doc_json['comments'][field]
-                    elif field in doc_json:
+                    if field in doc_json:
                         self.requested_fields[self.fields_mapping.convertFieldToUserNames(field)] = doc_json[field]
 
     def fetchEs(self, doc_json):
@@ -262,6 +267,7 @@ class DocumentParser:
         # Highlight of requested fields
         for hl_field in self.hl_fields:
             if hl_field in self.requested_fields:
+
                 text_to_highlight = self.requested_fields[hl_field]
                 if type(self.requested_fields[hl_field]) == list:
                     text_to_highlight = '; '.join(self.requested_fields[hl_field])
@@ -326,7 +332,7 @@ class DocumentParser:
             mongo.connectDb(self.conf_file.settings['settings_system']['client_mongodb_' + self.collection])
 
             # Query biomed to get document
-            mongo_collection = self.conf_file.settings['settings_system']['mongodb_collection_bib_' + self.collection]
+            mongo_collection = self.conf_file.settings['settings_system']['mongodb_collection_' + self.collection]
 
             # Get comments
             for comment_type in ['in', 'on']:

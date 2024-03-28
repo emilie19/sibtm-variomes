@@ -116,7 +116,8 @@ class DocumentsScoring:
         self.documents_df = self.documents_df.sort_values(by=['final_score'], ascending=False)
 
         pd.set_option('display.max_columns', None)
-        #print(self.documents_dataframe)
+        print("testttt")
+        #print(self.documents_df)
 
 
     def normalize(self, serie):

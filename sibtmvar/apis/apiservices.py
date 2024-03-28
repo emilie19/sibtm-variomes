@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import uuid
-
+from urllib.parse import unquote_plus
 import requests
 
 def processCaseParameters(request):

@@ -158,6 +158,7 @@ class RankDoc:
 
             # Execute query
             es_search = es.EsSearch(conf_file=self.conf_file)
+            #print(query_json)
             output = es_search.executeQuery(query_json, self.collection)
 
             # In case of errors, re-query, without the highlight
@@ -448,14 +449,17 @@ class RankDoc:
         elasticsearch_host = self.conf_file.settings['elasticsearch']['url_ct']
         elasticsearch_port = self.conf_file.settings['elasticsearch']['port_ct']
         elasticsearch_index = self.conf_file.settings['settings_system']['es_index_ct']
+        elasticsearch_username = self.conf_file.settings['elasticsearch']['username_ct']
+        elasticsearch_password = self.conf_file.settings['elasticsearch']['password_ct']
 
         try:
             if gender == "all":
                 gender = "none"
             print(gen_var)
-            ct_str = ct.rankCT(gen_var, disease, gender, age, str(self.conf_file.settings['settings_user']['min_date']), str(self.conf_file.settings['settings_user']['max_date']), "yes", elasticsearch_host, elasticsearch_port, elasticsearch_index)
+            ct_str = ct.rankCT(gen_var, disease, gender, age, str(self.conf_file.settings['settings_user']['min_date']), str(self.conf_file.settings['settings_user']['max_date']), "yes", elasticsearch_host, elasticsearch_port, elasticsearch_index, elasticsearch_username, elasticsearch_password)
             ct_json = json.loads(ct_str)
-        except:
+        except Exception as e:
+            print(e)
             ct_json = {}
             self.errors.append({"level": "warning", "service": "ct", "description": "Service crashed", "details": "none"})
 

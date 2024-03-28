@@ -1,2 +1,2 @@
 date    pubyear
-title   article-title
+title   title

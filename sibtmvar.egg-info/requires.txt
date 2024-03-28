@@ -1,0 +1,7 @@
+elasticsearch<7.14.0
+numpy
+pymongo
+pysolr
+pandas
+numpy
+flask

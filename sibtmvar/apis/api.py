@@ -7,6 +7,7 @@ from sibtmvar.apis import apiranklit as arl
 from sibtmvar.apis import apirankvar as arv
 from sibtmvar.apis import apistatus as ast
 from sibtmvar.microservices import configuration as conf
+import requests
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -14,7 +15,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Select the prod or dev configuration files
-conf_mode = "prod3"
+conf_mode = "dev2023"
 
 # Load the configuration file
 conf_file = conf.Configuration(conf_mode)
@@ -55,5 +56,12 @@ def getStatus():
     output = ast.getStatus(request, conf_mode=conf_mode)
     return Response(output, content_type="application/json; charset=utf-8")
 
+@app.route('/api/testsolr', methods=['GET', 'POST'])
+@cross_origin()
+def testSolr():
+    ''' Search and rank variants for one file or query '''
+    contents = requests.get("http://localhost:8995/solr/terminologies/select?q=*%3A*")
+    return Response(contents, content_type="application/json; charset=utf-8")
+	
 # Run the API
 app.run(host=conf_file.settings['api']['host'],port=conf_file.settings['api']['port'])
